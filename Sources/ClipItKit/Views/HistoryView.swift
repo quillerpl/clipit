@@ -99,7 +99,7 @@ struct HistoryView: View {
                 Button("Check for Updates…") { Updater.shared.checkForUpdates() }
                     .disabled(!updater.canCheckForUpdates)
                 Divider()
-                Button("Quit Magwell", action: onQuit)
+                Button("Quit ClipIt", action: onQuit)
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .font(.system(size: 11))

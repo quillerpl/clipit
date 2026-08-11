@@ -1,6 +1,6 @@
 import XCTest
 import AppKit
-@testable import MagwellKit
+@testable import ClipItKit
 
 /// Exercises `ClipboardMonitor.capture()` against a real, private pasteboard.
 ///
@@ -16,7 +16,7 @@ final class ClipboardCaptureTests: XCTestCase {
     override func setUp() {
         super.setUp()
         // A uniquely named pasteboard, so tests never touch the developer's real clipboard.
-        pasteboard = NSPasteboard(name: NSPasteboard.Name("com.jacks.magwell.tests.\(UUID().uuidString)"))
+        pasteboard = NSPasteboard(name: NSPasteboard.Name("com.quillerpl.clipit.tests.\(UUID().uuidString)"))
         pasteboard.clearContents()
         monitor = ClipboardMonitor(pasteboard: pasteboard)
     }
@@ -98,7 +98,7 @@ final class ClipboardCaptureTests: XCTestCase {
 
     func testFileURLIsCapturedAsFiles() throws {
         let url = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("magwell-test-\(UUID().uuidString).txt")
+            .appendingPathComponent("clipit-test-\(UUID().uuidString).txt")
         try "x".write(to: url, atomically: true, encoding: .utf8)
         defer { try? FileManager.default.removeItem(at: url) }
 

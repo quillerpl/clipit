@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "Magwell",
+    name: "ClipIt",
     platforms: [.macOS(.v14)],
     products: [
-        .executable(name: "Magwell", targets: ["Magwell"]),
-        .library(name: "MagwellKit", targets: ["MagwellKit"]),
+        .executable(name: "ClipIt", targets: ["ClipIt"]),
+        .library(name: "ClipItKit", targets: ["ClipItKit"]),
     ],
     dependencies: [
         // Auto-update. Ships as an XCFramework; build.sh copies it into Contents/Frameworks.
@@ -16,15 +16,15 @@ let package = Package(
         // Everything lives in the library so the test target can reach it. The executable is
         // a thin shell — testing an executable target directly is fragile across toolchains.
         .target(
-            name: "MagwellKit",
+            name: "ClipItKit",
             dependencies: [.product(name: "Sparkle", package: "Sparkle")],
-            path: "Sources/MagwellKit",
+            path: "Sources/ClipItKit",
             linkerSettings: [
                 // Sparkle.framework is embedded in the bundle, not installed system-wide.
                 .unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"]),
             ]
         ),
-        .executableTarget(name: "Magwell", dependencies: ["MagwellKit"], path: "Sources/Magwell"),
-        .testTarget(name: "MagwellKitTests", dependencies: ["MagwellKit"], path: "Tests/MagwellKitTests"),
+        .executableTarget(name: "ClipIt", dependencies: ["ClipItKit"], path: "Sources/ClipIt"),
+        .testTarget(name: "ClipItKitTests", dependencies: ["ClipItKit"], path: "Tests/ClipItKitTests"),
     ]
 )

@@ -1,6 +1,6 @@
 import XCTest
 import AppKit
-@testable import MagwellKit
+@testable import ClipItKit
 
 @MainActor
 final class ClipboardStoreTests: XCTestCase {

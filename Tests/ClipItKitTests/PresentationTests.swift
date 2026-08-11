@@ -1,6 +1,6 @@
 import XCTest
 import AppKit
-@testable import MagwellKit
+@testable import ClipItKit
 
 /// Layout and formatting rules that have no UI of their own but decide what the user sees.
 @MainActor

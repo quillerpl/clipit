@@ -32,8 +32,8 @@ jobs:
 
       - name: Verify bundle
         run: |
-          APP=.build/stage/Magwell.app
-          test -f "$APP/Contents/MacOS/Magwell"
-          test -f "$APP/Contents/Resources/Magwell.icns"
+          APP=.build/stage/ClipIt.app
+          test -f "$APP/Contents/MacOS/ClipIt"
+          test -f "$APP/Contents/Resources/ClipIt.icns"
           test -d "$APP/Contents/Frameworks/Sparkle.framework"
           codesign --verify --deep --verbose=1 "$APP"

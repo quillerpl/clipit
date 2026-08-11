@@ -42,7 +42,7 @@ final class LoginItem: ObservableObject {
         } catch {
             refresh()
             if !Bundle.main.bundlePath.hasPrefix("/Applications") {
-                return "Move Magwell to your Applications folder first, then try again."
+                return "Move ClipIt to your Applications folder first, then try again."
             }
             return error.localizedDescription
         }

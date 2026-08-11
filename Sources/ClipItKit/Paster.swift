@@ -189,12 +189,12 @@ enum PermissionPrompt {
         NSApp.activate(ignoringOtherApps: true)
 
         let alert = NSAlert()
-        alert.messageText = "Magwell needs Accessibility access"
+        alert.messageText = "ClipIt needs Accessibility access"
         alert.informativeText = """
-            To paste into other apps, Magwell has to send a ⌘V keystroke on your behalf. \
+            To paste into other apps, ClipIt has to send a ⌘V keystroke on your behalf. \
             macOS gates that behind Accessibility.
 
-            Open System Settings › Privacy & Security › Accessibility and switch Magwell on. \
+            Open System Settings › Privacy & Security › Accessibility and switch ClipIt on. \
             Your clipboard history keeps recording either way — only pasting is blocked.
             """
         alert.alertStyle = .warning

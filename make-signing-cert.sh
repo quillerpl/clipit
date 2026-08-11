@@ -1,6 +1,6 @@
 #!/bin/bash
-# One-time setup: create a self-signed code-signing certificate named "Magwell Dev" in your
-# login keychain, so Magwell keeps a STABLE code identity across rebuilds.
+# One-time setup: create a self-signed code-signing certificate named "ClipIt Dev" in your
+# login keychain, so ClipIt keeps a STABLE code identity across rebuilds.
 #
 # Why this is needed
 #   macOS ties the Accessibility permission to an app's code signature. An ad-hoc signature
@@ -9,7 +9,7 @@
 #   visibly ON while the app is actually denied.
 #
 #   Signing with a certificate changes the app's designated requirement from a per-build hash to
-#       identifier "com.jacks.magwell" and certificate leaf = H"<fixed hash>"
+#       identifier "com.quillerpl.clipit" and certificate leaf = H"<fixed hash>"
 #   which does not change when you rebuild. So the grant sticks.
 #
 # What this touches
@@ -18,16 +18,16 @@
 #   is happy to use an untrusted self-signed certificate, and TCC only cares that the leaf
 #   hash stays the same. Nothing here should ask for your password.
 #
-# To undo:  security delete-identity -c "Magwell Dev"
+# To undo:  security delete-identity -c "ClipIt Dev"
 
 set -euo pipefail
 
-NAME="Magwell Dev"
+NAME="ClipIt Dev"
 KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"
 # Transport passphrase for the intermediate PKCS#12 only. It is never stored: the file lives
 # in a temp dir for one command and is deleted on exit. It must be non-empty — Security
 # .framework cannot verify the MAC on an empty-password PKCS#12 written by OpenSSL 3.
-P12_PASS="magwell-transport"
+P12_PASS="clipit-transport"
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
@@ -46,7 +46,7 @@ x509_extensions    = ext
 prompt             = no
 
 [ dn ]
-CN = Magwell Dev
+CN = ClipIt Dev
 
 [ ext ]
 basicConstraints       = critical,CA:false
@@ -77,7 +77,7 @@ if security find-certificate -c "$NAME" "$KEYCHAIN" >/dev/null 2>&1; then
     echo
     echo "Next:"
     echo "  ./build.sh"
-    echo "  then grant Accessibility to /Applications/Magwell.app once — it will stick."
+    echo "  then grant Accessibility to /Applications/ClipIt.app once — it will stick."
     echo
     echo "Note: 'security find-identity -v -p codesigning' will still report 0 valid"
     echo "identities, because the certificate is not a trusted root. That is expected and"

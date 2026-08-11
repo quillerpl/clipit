@@ -1,7 +1,7 @@
 import AppKit
 import ApplicationServices
 
-/// `Magwell --check-trust`. The System Settings switch can read ON while the app is actually
+/// `ClipIt --check-trust`. The System Settings switch can read ON while the app is actually
 /// denied (see README), so this reports what the API returns rather than what the UI claims.
 @MainActor
 public enum Diagnostics {

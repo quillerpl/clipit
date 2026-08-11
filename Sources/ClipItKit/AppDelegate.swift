@@ -69,7 +69,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelega
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {
             button.image = NSImage(systemSymbolName: "doc.on.clipboard",
-                                   accessibilityDescription: "Magwell")
+                                   accessibilityDescription: "ClipIt")
             button.image?.isTemplate = true
             button.action = #selector(toggleHistory)
             button.target = self

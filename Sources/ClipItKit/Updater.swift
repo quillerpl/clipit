@@ -3,7 +3,7 @@ import Sparkle
 
 /// Auto-update via Sparkle.
 ///
-/// Magwell is a menu bar app with no main window, so it can't rely on a standard app menu to
+/// ClipIt is a menu bar app with no main window, so it can't rely on a standard app menu to
 /// carry "Check for Updates" — the item lives in the panel's ••• menu and drives this.
 @MainActor
 final class Updater: NSObject, ObservableObject, SPUUpdaterDelegate {
@@ -24,7 +24,7 @@ final class Updater: NSObject, ObservableObject, SPUUpdaterDelegate {
     /// development build — so a missing `SUFeedURL` disables updating rather than crashing.
     func start() {
         guard Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil else {
-            NSLog("Magwell: no SUFeedURL in Info.plist — auto-update disabled for this build")
+            NSLog("ClipIt: no SUFeedURL in Info.plist — auto-update disabled for this build")
             return
         }
 

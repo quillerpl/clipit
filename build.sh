@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds Magwell.app and installs it to /Applications.
+# Builds ClipIt.app and installs it to /Applications.
 #
 #   ./build.sh              release build, install, run
 #   CONFIG=debug ./build.sh debug build
@@ -8,14 +8,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-APP_NAME="Magwell"
-BUNDLE_ID="com.jacks.magwell"
+APP_NAME="ClipIt"
+BUNDLE_ID="com.quillerpl.clipit"
 VERSION="$(cat VERSION 2>/dev/null || echo 0.0.0)"
 BUILD_NUMBER="${BUILD_NUMBER:-$(date +%Y%m%d%H%M)}"
 CONFIG="${CONFIG:-release}"
 
 # Where releases are published. Sparkle reads this feed to find updates.
-FEED_URL="${FEED_URL:-https://raw.githubusercontent.com/quillerpl/magwell/main/appcast.xml}"
+FEED_URL="${FEED_URL:-https://raw.githubusercontent.com/quillerpl/clipit/main/appcast.xml}"
 # Public half of the EdDSA key pair; the private half lives in the keychain (generate_keys).
 SPARKLE_PUBLIC_KEY="${SPARKLE_PUBLIC_KEY:-PI+HEDqNaEWl3wkbavV4GzbFxoqsvRpidn+49dE2Bzk=}"
 
@@ -105,8 +105,8 @@ if [ -n "${CODESIGN_IDENTITY:-}" ]; then
     IDENTITY="$CODESIGN_IDENTITY"                      # e.g. "Developer ID Application: ..."
     SIGN_OPTIONS=(--options runtime)
     echo "==> Signing with '$IDENTITY' (hardened runtime, notarizable)"
-elif security find-certificate -c "Magwell Dev" "$HOME/Library/Keychains/login.keychain-db" >/dev/null 2>&1; then
-    IDENTITY="Magwell Dev"
+elif security find-certificate -c "ClipIt Dev" "$HOME/Library/Keychains/login.keychain-db" >/dev/null 2>&1; then
+    IDENTITY="ClipIt Dev"
     echo "==> Signing with '$IDENTITY' (Accessibility grant persists across rebuilds)"
 else
     IDENTITY="-"
@@ -159,7 +159,7 @@ if [ "${NO_INSTALL:-0}" != "1" ]; then
         # so the old grant silently stops applying. Clear it so macOS re-asks honestly rather
         # than showing a switch that is on but inert.
         tccutil reset Accessibility "$BUNDLE_ID" >/dev/null 2>&1 || true
-        echo "    (ad-hoc build: Accessibility grant reset — re-enable Magwell in"
+        echo "    (ad-hoc build: Accessibility grant reset — re-enable ClipIt in"
         echo "     System Settings › Privacy & Security › Accessibility.)"
     fi
     [ "$RUNNING" = "1" ] && open "$DEST"

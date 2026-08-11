@@ -1,5 +1,5 @@
 import AppKit
-import MagwellKit
+import ClipItKit
 
 // Top-level code in a SwiftPM executable is not implicitly main-actor isolated, but it does
 // run on the main thread — assert that so the @MainActor types can be built here.
@@ -26,6 +26,6 @@ MainActor.assumeIsolated {
     application.delegate = delegate
     application.setActivationPolicy(.accessory)
     // Kept alive for the process lifetime.
-    objc_setAssociatedObject(application, "MagwellDelegate", delegate, .OBJC_ASSOCIATION_RETAIN)
+    objc_setAssociatedObject(application, "ClipItDelegate", delegate, .OBJC_ASSOCIATION_RETAIN)
     application.run()
 }

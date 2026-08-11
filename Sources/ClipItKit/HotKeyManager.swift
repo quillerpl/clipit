@@ -42,7 +42,7 @@ final class HotKeyManager {
         let status = RegisterEventHotKey(keyCode, modifiers, hotKeyID,
                                          GetApplicationEventTarget(), 0, &ref)
         guard status == noErr, let ref else {
-            NSLog("Magwell: failed to register hotkey \(keyCode)/\(modifiers) — OSStatus \(status)")
+            NSLog("ClipIt: failed to register hotkey \(keyCode)/\(modifiers) — OSStatus \(status)")
             return false
         }
         actions[id] = action

@@ -42,7 +42,7 @@ struct WelcomeView: View {
                 .resizable()
                 .frame(width: 54, height: 54)
             VStack(alignment: .leading, spacing: 2) {
-                Text("Magwell")
+                Text("ClipIt")
                     .font(.system(size: 20, weight: .semibold))
                 Text("Everything you copy, one keystroke away.")
                     .font(.system(size: 12))
@@ -89,8 +89,8 @@ struct WelcomeView: View {
                 Text(permission.isTrusted ? "Accessibility granted" : "One permission needed")
                     .font(.system(size: 12, weight: .medium))
                 Text(permission.isTrusted
-                     ? "Magwell can paste into other apps."
-                     : "macOS requires this before any app can paste for you. Magwell asks for nothing else.")
+                     ? "ClipIt can paste into other apps."
+                     : "macOS requires this before any app can paste for you. ClipIt asks for nothing else.")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -115,7 +115,7 @@ struct WelcomeView: View {
                 .font(.system(size: 12))
 
             Spacer()
-            Button("Start using Magwell", action: onFinish)
+            Button("Start using ClipIt", action: onFinish)
                 .keyboardShortcut(.defaultAction)
         }
         .padding(.horizontal, 20)

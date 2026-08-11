@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Development-only: `Magwell --snapshot <dir>` seeds fake history, renders the two panels
+/// Development-only: `ClipIt --snapshot <dir>` seeds fake history, renders the two panels
 /// offscreen to PNGs, and exits. Lets the UI be inspected without a running menu bar.
 @MainActor
 public enum SnapshotRenderer {
@@ -56,7 +56,7 @@ public enum SnapshotRenderer {
                 Best,
                 Maria
                 """, app: "Microsoft Outlook", styled: true),
-            makeFiles([URL(fileURLWithPath: "/Users/jacks/Documents/Q3-invoices.xlsx")], app: "Finder"),
+            makeFiles([URL(fileURLWithPath: "/Users/you/Documents/Q3-invoices.xlsx")], app: "Finder"),
             makeText("SELECT * FROM invoices WHERE status = 'pending';", app: "Sublime Text"),
             makeText("PL61 1090 1014 0000 0712 1981 2874", app: "Safari"),
             makeText("npm run dev -- --port 3000", app: "Terminal"),

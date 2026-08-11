@@ -17,7 +17,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-APP_NAME="Magwell"
+APP_NAME="ClipIt"
 VERSION="$(cat VERSION)"
 NOTARIZE=0
 [ "${1:-}" = "--notarize" ] && NOTARIZE=1
@@ -79,7 +79,7 @@ GENERATE_APPCAST="$(find .build/artifacts/sparkle -type f -name generate_appcast
 if [ -n "$GENERATE_APPCAST" ]; then
     echo "==> Updating appcast.xml"
     "$GENERATE_APPCAST" \
-        --download-url-prefix "https://github.com/quillerpl/magwell/releases/download/v$VERSION/" \
+        --download-url-prefix "https://github.com/quillerpl/clipit/releases/download/v$VERSION/" \
         "$DIST" >/dev/null
     [ -f "$DIST/appcast.xml" ] && mv "$DIST/appcast.xml" appcast.xml
     echo "    appcast.xml written — commit it so the update feed goes live."

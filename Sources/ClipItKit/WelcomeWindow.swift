@@ -35,7 +35,7 @@ final class WelcomeWindow: NSObject, NSWindowDelegate {
         }))
 
         let window = NSWindow(contentViewController: hosting)
-        window.title = "Welcome to Magwell"
+        window.title = "Welcome to ClipIt"
         window.styleMask = [.titled, .closable, .fullSizeContentView]
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
