@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Magwell</title>
+        <item>
+            <title>0.1.0</title>
+            <pubDate>Wed, 12 Aug 2026 01:11:04 +0200</pubDate>
+            <sparkle:version>202608120111</sparkle:version>
+            <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/quillerpl/magwell/releases/download/v0.1.0/Magwell-0.1.0.dmg" length="2022262" type="application/octet-stream" sparkle:edSignature="0VA5rJjNNzH5dD+pvdOeBEV+ykDBJ7ltI4byuKsAqvADWso9fk5fWx0Ljt26f16mukjt8YmSnRmGhkZG094GBA=="/>
+        </item>
+    </channel>
+</rss>

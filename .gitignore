@@ -1,0 +1,7 @@
+.build/
+.swiftpm/
+dist/
+*.dmg
+*.xcodeproj
+.DS_Store
+Magwell.app/

@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test
+    # The suite drives real NSPasteboard and AppKit, so it needs macOS 14+ for the
+    # deployment target.
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: swift --version
+
+      - name: Build
+        run: swift build
+
+      - name: Test
+        run: swift test
+
+      - name: Assemble app bundle
+        # NO_INSTALL keeps CI from writing to /Applications; this proves the bundle,
+        # icon rendering and Sparkle embedding all still work.
+        run: NO_INSTALL=1 ./build.sh
+
+      - name: Verify bundle
+        run: |
+          APP=.build/stage/Magwell.app
+          test -f "$APP/Contents/MacOS/Magwell"
+          test -f "$APP/Contents/Resources/Magwell.icns"
+          test -d "$APP/Contents/Frameworks/Sparkle.framework"
+          codesign --verify --deep --verbose=1 "$APP"
