@@ -33,10 +33,13 @@ final class Updater: NSObject, ObservableObject, SPUUpdaterDelegate {
                                                      userDriverDelegate: nil)
         self.controller = controller
 
+        // Read the value out of the KVO change rather than off the updater, and hop to the
+        // singleton instead of capturing self: the closure is nonisolated, and capturing a
+        // main-actor `self` across it is rejected by some toolchains.
         observation = controller.updater.observe(\.canCheckForUpdates, options: [.initial, .new]) {
-            [weak self] updater, _ in
-            let value = updater.canCheckForUpdates
-            Task { @MainActor in self?.canCheckForUpdates = value }
+            _, change in
+            guard let value = change.newValue else { return }
+            Task { @MainActor in Updater.shared.canCheckForUpdates = value }
         }
     }
 
