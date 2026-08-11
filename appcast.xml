@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>ClipIt</title>
+        <item>
+            <title>0.1.0</title>
+            <pubDate>Wed, 12 Aug 2026 01:54:45 +0200</pubDate>
+            <sparkle:version>202608120154</sparkle:version>
+            <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/quillerpl/clipit/releases/download/v0.1.0/ClipIt-0.1.0.dmg" length="2534268" type="application/octet-stream" sparkle:edSignature="6n/qwtZYv+YBp2JdIatAOP/5OWlFl1Wz2LlTlSnHSWgt5Hwr9H5yRtOIvHYEhNxhJcCxSPpqbYuSgTgLE0JnDA=="/>
+        </item>
+    </channel>
+</rss>
