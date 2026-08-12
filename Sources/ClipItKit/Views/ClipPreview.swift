@@ -5,10 +5,15 @@ import SwiftUI
 struct VisualEffectBackground: NSViewRepresentable {
     var material: NSVisualEffectView.Material = .hudWindow
 
+    /// `.behindWindow` samples the desktop, which is right in the app but renders as nothing
+    /// offscreen. Snapshots put a backdrop view inside the same window instead, so they need
+    /// `.withinWindow` to show the translucency the user actually sees.
+    @MainActor static var blendsWithinWindow = false
+
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
         view.material = material
-        view.blendingMode = .behindWindow
+        view.blendingMode = Self.blendsWithinWindow ? .withinWindow : .behindWindow
         view.state = .active
         view.appearance = NSAppearance(named: .darkAqua)
         return view

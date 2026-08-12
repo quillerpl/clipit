@@ -7,43 +7,73 @@
 A clipboard history for macOS that lives in your menu bar.
 Nothing it records ever leaves your Mac — or even touches your disk.
 
+<img src="docs/list.png" width="620" alt="ClipIt's history panel, showing recent copies with previews">
+
 </div>
 
 ---
 
-## Install
+## Download
 
-1. Download **ClipIt.dmg** from [Releases](https://github.com/quillerpl/clipit/releases/latest).
-2. Open it and drag **ClipIt** to **Applications**.
-3. Open Applications and **right-click ClipIt → Open**, then click **Open** in the dialog.
+### [⬇ Download ClipIt for macOS](https://github.com/quillerpl/clipit/releases/latest)
 
-> **Why right-click the first time?** ClipIt isn't signed with a paid Apple developer
-> certificate, so macOS shows an "unidentified developer" warning on first launch. Right-click →
-> Open is how you tell macOS you trust it. You only do this once. Double-clicking instead of
-> right-clicking will just show a warning with no way past it.
+Requires macOS 14 (Sonoma) or later. Works on both Apple Silicon and Intel Macs.
 
-ClipIt then walks you through the one permission it needs.
+### Install
 
-### The permission
+1. Open the downloaded **ClipIt.dmg** and drag **ClipIt** into **Applications**.
+2. Open your Applications folder and **right-click ClipIt → Open**.
+3. Click **Open** in the dialog that appears.
+
+> **Why right-click the first time?**
+> ClipIt isn't signed with a paid Apple developer certificate, so macOS shows an
+> "unidentified developer" warning on first launch. Right-click → Open is how you tell macOS
+> you trust it — you only do this once. Plain double-clicking shows a warning with no way past
+> it, so use the right-click.
+
+ClipIt then greets you and walks through the single permission it needs.
+
+<div align="center">
+<img src="docs/welcome.png" width="520" alt="The welcome window explaining the shortcuts and the Accessibility permission">
+</div>
+
+### The one permission
 
 macOS requires **Accessibility** access before *any* app can paste on your behalf — pasting
-means pressing ⌘V for you, and macOS treats that as controlling your computer. ClipIt asks
-for nothing else: no network, no files, no contacts.
+means pressing ⌘V for you, and macOS treats that as controlling your computer.
 
-Recording your clipboard works without it. Only pasting is blocked.
+ClipIt asks for nothing else. No network access, no files, no contacts. Recording your
+clipboard works without the permission; only pasting is blocked.
 
 ---
 
 ## What it does
 
-| | |
-|---|---|
-| **⌘⇧V** | Paste **without formatting**. Strips fonts, sizes and colours; your clipboard keeps the styled version so a normal ⌘V still works. |
-| **⌘⌥V** | A small panel opens **next to your cursor** with your last few copies. `←` `→` to choose, `⏎` to paste, `esc` to close. Drag it aside if it's in the way. |
-| **Menu bar icon** | The full history — text, images and files, with search. |
+Copy things as you normally would. ClipIt quietly keeps the last 50, and gives you three ways
+to get them back.
 
-Holds your last 50 copies. Text keeps its formatting, images and copied files show real
-previews.
+### ⌘⇧V — paste without formatting
+
+Strips fonts, sizes and colours, so pasted text takes on the style of wherever it lands. Your
+clipboard keeps the styled version, so a normal ⌘V still works right afterwards.
+
+### ⌘⌥V — pick from recent copies
+
+A small panel appears **next to your cursor**, not in the middle of the screen. `←` `→` to
+choose, `⏎` to paste, `esc` to close. Drag it aside if it covers something.
+
+<div align="center">
+<img src="docs/switcher.png" width="620" alt="The quick switcher showing two recent items side by side">
+</div>
+
+### The menu bar icon — everything you've copied
+
+Click it for the full history, with search. Text, images and copied files all show real
+previews. Switch to card view with the toggle in the top-left for bigger previews.
+
+<div align="center">
+<img src="docs/cards.png" width="820" alt="Card view: a wide drawer of previews with keyboard shortcut badges">
+</div>
 
 ### Keys
 
@@ -57,8 +87,6 @@ previews.
 | `esc` | Close |
 | `⌘1`–`⌘9` | Paste that card (card view only) |
 
-Switch between **list** and **card** view with the toggle at the top-left of either panel.
-
 ---
 
 ## Privacy
@@ -70,6 +98,15 @@ Switch between **list** and **card** view with the toggle at the top-left of eit
   secret is never recorded.
 
 ---
+---
+
+<div align="center">
+
+## For developers
+
+*Everything below is for people building or modifying ClipIt.*
+
+</div>
 
 ## Building from source
 
@@ -78,7 +115,7 @@ Requires macOS 14+ and Xcode 16.
 ```bash
 git clone https://github.com/quillerpl/clipit.git
 cd clipit
-./make-signing-cert.sh   # one-time; see "Accessibility keeps re-asking" below
+./make-signing-cert.sh   # one-time — see "Accessibility keeps re-asking" below
 ./build.sh               # builds, installs to /Applications, launches
 ```
 
@@ -87,28 +124,37 @@ swift test               # 47 tests
 ./release.sh             # universal build + DMG + signed update feed
 ```
 
-`release.sh --notarize` additionally submits to Apple, which removes the right-click-to-open
-step for everyone. It needs the paid Apple Developer Program plus `CODESIGN_IDENTITY` and
+`release.sh --notarize` also submits to Apple, which removes the right-click-to-open step for
+everyone. It needs the paid Apple Developer Program plus `CODESIGN_IDENTITY` and
 `NOTARY_PROFILE` — see the header of [release.sh](release.sh).
 
 ### Layout
 
 ```
-Sources/ClipItKit/       everything: capture, paste, hotkeys, panels
-  ClipboardMonitor.swift    changeCount polling + capture rules
-  ClipboardStore.swift      in-memory history, dedupe, search
-  ClipboardItem.swift       one snapshot: representations, thumbnail, display strings
-  Paster.swift              pasteboard writes, focus restore, synthesized ⌘V
-  HotKeyManager.swift       Carbon RegisterEventHotKey wrapper
-  CaretLocator.swift        finds the insertion point via the Accessibility API
-  IconRenderer.swift        draws the app icon at every size
-  Views/                    history list, card drawer, switcher, welcome
-Sources/ClipIt/          thin executable shell
-Tests/ClipItKitTests/    capture rules, store, search, layout maths
+Sources/ClipItKit/          everything: capture, paste, hotkeys, panels
+  ClipboardMonitor.swift      changeCount polling + capture rules
+  ClipboardStore.swift        in-memory history, dedupe, search
+  ClipboardItem.swift         one snapshot: representations, thumbnail, display strings
+  Paster.swift                pasteboard writes, focus restore, synthesized ⌘V
+  HotKeyManager.swift         Carbon RegisterEventHotKey wrapper
+  CaretLocator.swift          finds the insertion point via the Accessibility API
+  IconRenderer.swift          draws the app icon at every size
+  SnapshotRenderer.swift      renders the screenshots in this README
+  Views/                      history list, card drawer, switcher, welcome
+Sources/ClipIt/             thin executable shell
+Tests/ClipItKitTests/       capture rules, store, search, layout maths
 ```
 
 The library/executable split exists so the tests can reach the code — testing an executable
 target directly is fragile across toolchains.
+
+Two developer-only flags, both used by `build.sh` and CI:
+
+```bash
+ClipIt --make-icon <dir>    # renders the iconset
+ClipIt --snapshot <dir>     # renders this README's screenshots
+ClipIt --check-trust        # prints what the Accessibility API actually reports
+```
 
 ---
 
@@ -120,11 +166,13 @@ macOS ties the Accessibility grant to an app's **code signature**. An ad-hoc sig
 new hash on every build, so after rebuilding, the System Settings switch stays visibly ON while
 the app is actually denied.
 
-- `make-signing-cert.sh` creates a self-signed `ClipIt Dev` certificate (trusted **for code
-  signing only**, not as a general root), giving the app one stable identity so the grant
-  sticks. Nothing here asks for your password.
-- `build.sh` installs to `/Applications` deliberately: this project lives on an external volume
-  mounted `noowners`, where TCC grants are unreliable.
+- `make-signing-cert.sh` creates a self-signed `ClipIt Dev` certificate, giving the app one
+  stable identity so the grant sticks. `codesign` accepts an *untrusted* self-signed
+  certificate, so this changes no system trust settings and never asks for your password.
+  Note that `security find-identity -v -p codesigning` will not list it — look it up with
+  `security find-certificate -c` instead.
+- `build.sh` installs to `/Applications` deliberately: TCC grants are unreliable for apps on
+  external volumes mounted `noowners`.
 
 To see what macOS actually thinks, rather than trusting the switch:
 
@@ -179,15 +227,35 @@ rows from the ⌘N indices and ⌘3 pastes the wrong thing.
 **Dimmed text needs explicit opacities.** SwiftUI's `.secondary`/`.tertiary` are tuned for
 opaque windows and wash out over a translucent one.
 
-**`isMovableByWindowBackground` isn't enough** to drag a SwiftUI-hosted panel — the hosting view
-swallows the mouseDown. `WindowDragHandle` forwards it to `performDrag`.
+**`isMovableByWindowBackground` isn't enough** to drag a SwiftUI-hosted panel — the hosting
+view swallows the mouseDown. `WindowDragHandle` forwards it to `performDrag`.
 
 **The paste waits for you to let go.** The hotkey fires while ⌘⇧ are still held, so posting ⌘V
 immediately would land as ⌘⇧V and re-trigger the app.
 
 **Hardened runtime is only enabled for Developer ID builds.** It turns on library validation,
 which requires every loaded framework to share the host's Team ID — a self-signed certificate
-has none, so embedded Sparkle would fail to load at launch.
+has none, so the embedded Sparkle would fail to load at launch.
+
+**Release builds must be universal.** An arm64-only binary simply refuses to open on an Intel
+Mac, with no useful explanation for whoever you sent it to.
+
+---
+
+## Changes
+
+### 0.1.0 — first release
+
+- Clipboard history in the menu bar: text, images and copied files, last 50 items.
+- **⌘⇧V** pastes without formatting, leaving your clipboard's styled version intact.
+- **⌘⌥V** opens a switcher next to your text cursor; arrow keys to choose, Return to paste.
+- List view and a wide card view with previews, toggled from either panel.
+- Search across content, filenames and source app (**⌘F**).
+- Memory-only: nothing is written to disk, and history clears when you quit or restart.
+- Copies marked secret by password managers are never recorded.
+- Open at login, first-run welcome window, and automatic update checks via Sparkle.
+
+Full history in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
