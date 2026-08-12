@@ -13,6 +13,13 @@ final class Updater: NSObject, ObservableObject, SPUUpdaterDelegate {
     /// Published so the menu item can disable itself while an check is impossible.
     @Published private(set) var canCheckForUpdates = false
 
+    /// Version of an update that is downloaded and waiting for ClipIt to quit, if any.
+    ///
+    /// Updates install silently here, which is the right trade for a memory-only history but
+    /// leaves the user with no idea anything happened. This is the quiet signal: a dot on the
+    /// menu bar icon and a line in the ••• menu, rather than a dialog that interrupts.
+    @Published private(set) var pendingUpdateVersion: String?
+
     private var controller: SPUStandardUpdaterController?
     private var observation: NSKeyValueObservation?
 
@@ -45,6 +52,23 @@ final class Updater: NSObject, ObservableObject, SPUUpdaterDelegate {
 
     func checkForUpdates() {
         controller?.checkForUpdates(nil)
+    }
+
+    // MARK: - SPUUpdaterDelegate
+
+    /// Park a downloaded update until ClipIt quits, instead of letting Sparkle escalate to an
+    /// "Install and Relaunch" alert.
+    ///
+    /// A relaunch destroys the history — it lives in memory and nowhere else — so an update
+    /// arriving mid-afternoon would silently eat the morning's clipboard. Returning `true`
+    /// stalls Sparkle's update cycle so it stops asking; deliberately *not* calling
+    /// `immediateInstallHandler` is what keeps the running session intact. Sparkle's on-quit
+    /// installer does not relaunch the app, so the update lands invisibly on next launch.
+    func updater(_ updater: SPUUpdater,
+                 willInstallUpdateOnQuit item: SUAppcastItem,
+                 immediateInstallationBlock immediateInstallHandler: @escaping () -> Void) -> Bool {
+        pendingUpdateVersion = item.displayVersionString
+        return true
     }
 
     var automaticallyChecks: Bool {

@@ -47,6 +47,53 @@ final class ClipboardCaptureTests: XCTestCase {
         return NSBitmapImageRep(data: tiff)!.representation(using: .png, properties: [:])!
     }
 
+    private func sampleTIFF(width: Int = 8, height: Int = 8) -> Data {
+        let image = NSImage(size: NSSize(width: width, height: height))
+        image.lockFocus()
+        NSColor.systemTeal.setFill()
+        NSBezierPath(rect: NSRect(x: 0, y: 0, width: width, height: height)).fill()
+        image.unlockFocus()
+        return image.tiffRepresentation!
+    }
+
+    // MARK: - Bitmap flavours
+    //
+    // History is memory-only, so what capture keeps *is* the app's memory footprint. A
+    // pasteboard TIFF is uncompressed — tens of megabytes for a Retina screenshot — and apps
+    // routinely offer it alongside the identical PNG.
+
+    func testDuplicateBitmapFlavoursCollapseToPNG() {
+        write {
+            $0.setData(samplePNG(), forType: .png)
+            $0.setData(sampleTIFF(), forType: .tiff)
+        }
+
+        let item = monitor.capture()
+
+        XCTAssertNotNil(item?.representations[.png])
+        XCTAssertNil(item?.representations[.tiff],
+                     "keeping the same pixels twice is the most expensive thing history can do")
+    }
+
+    func testTIFFOnlyCaptureIsTranscodedToPNG() {
+        write { $0.setData(sampleTIFF(), forType: .tiff) }
+
+        let item = monitor.capture()
+
+        XCTAssertEqual(item?.kind, .image)
+        XCTAssertNotNil(item?.representations[.png], "the uncompressed flavour must not be what we keep")
+        XCTAssertNil(item?.representations[.tiff])
+        XCTAssertTrue(item?.thumbnailIsContent == true, "the preview must survive the transcode")
+    }
+
+    func testByteCountTracksWhatIsActuallyHeld() {
+        write { $0.setString("hello world", forType: .string) }
+
+        let item = monitor.capture()
+
+        XCTAssertEqual(item?.byteCount, item?.representations.values.reduce(0) { $0 + $1.count })
+    }
+
     // MARK: - Classification
 
     func testPlainTextIsCapturedAsText() {
@@ -64,7 +111,7 @@ final class ClipboardCaptureTests: XCTestCase {
         let item = monitor.capture()
 
         XCTAssertEqual(item?.kind, .image)
-        XCTAssertNotNil(item?.image)
+        XCTAssertTrue(item?.thumbnailIsContent == true)
     }
 
     /// The regression that started this: "Copy Image" in a browser puts the bitmap *and* the
@@ -79,7 +126,7 @@ final class ClipboardCaptureTests: XCTestCase {
         let item = monitor.capture()
 
         XCTAssertEqual(item?.kind, .image, "a copied image must not be demoted to a link")
-        XCTAssertNotNil(item?.image)
+        XCTAssertTrue(item?.thumbnailIsContent == true)
     }
 
     /// ...but real prose alongside a bitmap is a rich-text copy, and the text is the point.
@@ -93,7 +140,7 @@ final class ClipboardCaptureTests: XCTestCase {
 
         XCTAssertEqual(item?.kind, .text)
         // The bitmap is still kept so the row can show a preview rather than a glyph.
-        XCTAssertNotNil(item?.image)
+        XCTAssertTrue(item?.thumbnailIsContent == true)
     }
 
     func testFileURLIsCapturedAsFiles() throws {

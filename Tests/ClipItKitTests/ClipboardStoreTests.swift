@@ -49,6 +49,20 @@ final class ClipboardStoreTests: XCTestCase {
         XCTAssertEqual(store.items.count, 3, "re-copying must not create a duplicate row")
     }
 
+    /// Promoting the *old* entry left the row claiming it came from the app you first copied
+    /// it in, an hour ago — for something you copied five seconds ago.
+    func testRecopyingKeepsTheFreshCaptureNotTheStaleOne() {
+        store.add(text("one", app: "Safari"))
+        store.add(text("two"))
+
+        let recopied = text("one", app: "Terminal")
+        store.add(recopied)
+
+        XCTAssertEqual(store.items.count, 2)
+        XCTAssertEqual(store.items[0].id, recopied.id, "the row must be the new capture")
+        XCTAssertEqual(store.items[0].sourceAppName, "Terminal")
+    }
+
     func testHistoryIsCappedAndDropsOldest() {
         for index in 0..<(store.maxItems + 10) {
             store.add(text("item \(index)"))
@@ -76,6 +90,35 @@ final class ClipboardStoreTests: XCTestCase {
         store.purge()
 
         XCTAssertTrue(store.items.isEmpty)
+    }
+
+    // MARK: - Memory budget
+
+    func testNothingIsEvictedUnderBudget() {
+        XCTAssertEqual(ClipboardStore.evictionCount(sizes: [10, 10, 10], budget: 100), 0)
+    }
+
+    func testOldestAreEvictedUntilUnderBudget() {
+        // Newest first: dropping the two oldest brings 90 down to 40.
+        XCTAssertEqual(ClipboardStore.evictionCount(sizes: [20, 20, 25, 25], budget: 50), 2)
+    }
+
+    func testNewestSurvivesEvenWhenItBustsTheBudgetAlone() {
+        XCTAssertEqual(ClipboardStore.evictionCount(sizes: [500, 10, 10], budget: 100), 2,
+                       "everything older goes, but the just-copied item is never dropped")
+        XCTAssertEqual(ClipboardStore.evictionCount(sizes: [500], budget: 100), 0)
+    }
+
+    func testEvictionHandlesEmptyHistory() {
+        XCTAssertEqual(ClipboardStore.evictionCount(sizes: [], budget: 100), 0)
+    }
+
+    func testTotalBytesSumsWhatHistoryHolds() {
+        store.add(text("aaaa"))
+        store.add(text("bb"))
+
+        XCTAssertEqual(store.totalBytes, store.items.reduce(0) { $0 + $1.byteCount })
+        XCTAssertGreaterThan(store.totalBytes, 0)
     }
 
     // MARK: - Filtering

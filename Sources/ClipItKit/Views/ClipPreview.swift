@@ -217,7 +217,7 @@ struct ClipCard: View {
 
     @ViewBuilder
     private var preview: some View {
-        if let image = item.image, item.kind == .image {
+        if item.kind == .image, let image = item.thumbnail {
             Image(nsImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fill)

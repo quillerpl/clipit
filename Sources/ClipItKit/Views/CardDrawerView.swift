@@ -93,7 +93,8 @@ struct CardDrawerView: View {
                                  shortcut: index + 1)
                             .id(item.id)
                             .onTapGesture { onPaste(item, false) }
-                            .onHover { if $0 { selection = index } }
+                            // Only when the pointer actually moved — see PointerGate.
+                            .onHover { if $0, PointerGate.shared.acceptsHover() { selection = index } }
                             .contextMenu {
                                 Button("Paste") { onPaste(item, false) }
                                 Button("Paste as Plain Text") { onPaste(item, true) }

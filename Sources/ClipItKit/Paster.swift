@@ -21,8 +21,11 @@ enum Paster {
     // MARK: - Writing
 
     /// Writes every captured flavour, so pasting into Pages or Word keeps the original styling.
-    static func placeOnPasteboard(_ item: ClipboardItem, plainOnly: Bool) {
-        let pasteboard = NSPasteboard.general
+    ///
+    /// Tests pass a private `NSPasteboard(name:)` so the round-trip can be exercised without
+    /// touching the developer's real clipboard.
+    static func placeOnPasteboard(_ item: ClipboardItem, plainOnly: Bool,
+                                  on pasteboard: NSPasteboard = .general) {
         pasteboard.clearContents()
 
         if plainOnly {
@@ -34,6 +37,13 @@ enum Paster {
             let pbItem = NSPasteboardItem()
             for (type, data) in item.representations {
                 pbItem.setData(data, forType: type)
+            }
+            // History keeps one bitmap flavour to stay small (see `Bitmap`). Put the TIFF back
+            // for the apps that only read that one, so what lands is what was copied.
+            if item.representations[Bitmap.tiff] == nil,
+               let png = item.representations[Bitmap.png],
+               let tiff = Bitmap.tiffFromPNG(png) {
+                pbItem.setData(tiff, forType: Bitmap.tiff)
             }
             pasteboard.writeObjects([pbItem])
         }

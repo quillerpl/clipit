@@ -46,6 +46,12 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelega
             .sink { [weak self] in self?.updatePopoverSize() }
             .store(in: &cancellables)
 
+        // An update parked for the next quit is the only thing that changes the menu bar glyph.
+        Updater.shared.$pendingUpdateVersion
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.refreshStatusItemImage() }
+            .store(in: &cancellables)
+
         // First run gets the welcome window, which explains the shortcuts and walks the user
         // through Accessibility. After that, only nag if the permission is actually missing.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
@@ -66,14 +72,23 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelega
     // MARK: - Status item
 
     private func setUpStatusItem() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        // Variable rather than square: the update dot makes the glyph a few points wider, and a
+        // square item would crop it off.
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "doc.on.clipboard",
-                                   accessibilityDescription: "ClipIt")
-            button.image?.isTemplate = true
             button.action = #selector(toggleHistory)
             button.target = self
         }
+        refreshStatusItemImage()
+    }
+
+    /// Redraws the menu bar glyph, with a dot when an update is parked waiting for a quit.
+    private func refreshStatusItemImage() {
+        guard let button = statusItem?.button else { return }
+        let pending = Updater.shared.pendingUpdateVersion
+        button.image = StatusItemIcon.image(badged: pending != nil)
+        button.setAccessibilityLabel(pending.map { "ClipIt — update to \($0) installs when you quit" }
+                                     ?? "ClipIt")
     }
 
     private func setUpPopover() {
@@ -144,6 +159,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelega
         guard let button = statusItem.button else { return }
         lastActiveApp = NSWorkspace.shared.frontmostApplication
         historySelection.index = 0
+        PointerGate.shared.reset()
         resetSearch()
         updatePopoverSize()
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
@@ -162,6 +178,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelega
         guard drawerPanel == nil, let screen = QuickSwitcherPanel.activeScreen else { return }
         lastActiveApp = NSWorkspace.shared.frontmostApplication
         drawerSelection.index = 0
+        PointerGate.shared.reset()
         resetSearch()
 
         let rect = NSRect(x: 0, y: 0,
@@ -229,7 +246,8 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelega
 
     private func showSwitcher() {
         lastActiveApp = NSWorkspace.shared.frontmostApplication
-        switcherSelection.index = 0
+        switcherSelection.index = QuickSwitcherView.initialSelection(
+            itemCount: ClipboardStore.shared.visibleItems.count)
 
         let rect = NSRect(x: 0, y: 0,
                           width: QuickSwitcherView.width,

@@ -76,6 +76,9 @@ final class ClipboardMonitor {
         }
         guard !representations.isEmpty else { return nil }
 
+        // One bitmap flavour, not two of the same pixels — this is where the memory goes.
+        representations = Bitmap.collapsingDuplicates(representations)
+
         let source = NSWorkspace.shared.frontmostApplication
         let sourceName = source?.localizedName
         let sourceIcon = source?.icon?.scaledToFit(boundingBox: NSSize(width: 16, height: 16))

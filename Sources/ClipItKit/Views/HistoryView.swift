@@ -96,10 +96,18 @@ struct HistoryView: View {
                     get: { loginItem.isEnabled },
                     set: { loginItem.setEnabled($0) }))
                 Button("Welcome & Shortcuts…") { WelcomeWindow.shared.show() }
-                Button("Check for Updates…") { Updater.shared.checkForUpdates() }
-                    .disabled(!updater.canCheckForUpdates)
+                if let pending = updater.pendingUpdateVersion {
+                    // A plain label, not a button: there is nothing to do about it, and the
+                    // point is that it *doesn't* interrupt.
+                    Text("Update \(pending) ready — installs when you quit")
+                } else {
+                    Button("Check for Updates…") { Updater.shared.checkForUpdates() }
+                        .disabled(!updater.canCheckForUpdates)
+                }
                 Divider()
-                Button("Quit ClipIt", action: onQuit)
+                // Naming the consequence is the whole reason the badge exists.
+                Button(updater.pendingUpdateVersion == nil ? "Quit ClipIt" : "Quit and Update ClipIt",
+                       action: onQuit)
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .font(.system(size: 11))
@@ -126,7 +134,8 @@ struct HistoryView: View {
                                    onDelete: { store.remove(item) })
                             .id(item.id)
                             .onHover { inside in
-                                if inside { selection = index }
+                                // Only when the pointer actually moved — see PointerGate.
+                                if inside, PointerGate.shared.acceptsHover() { selection = index }
                             }
                     }
                 }

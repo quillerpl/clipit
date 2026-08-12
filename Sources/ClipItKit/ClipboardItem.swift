@@ -22,8 +22,14 @@ final class ClipboardItem: Identifiable, Equatable, ObservableObject {
     /// Every pasteboard representation we captured, so a normal paste round-trips formatting.
     let representations: [NSPasteboard.PasteboardType: Data]
 
-    let image: NSImage?
+    /// Dimensions of the captured bitmap, kept for the row headline. The decoded bitmap itself
+    /// is deliberately *not* retained — see `thumbnail`.
+    let imageSize: NSSize?
+
     let fileURLs: [URL]
+
+    /// Pasteboard bytes this entry holds, for the store's memory budget.
+    let byteCount: Int
 
     let sourceAppName: String?
     let sourceAppIcon: NSImage?
@@ -31,14 +37,26 @@ final class ClipboardItem: Identifiable, Equatable, ObservableObject {
     /// Content fingerprint, used to collapse duplicates.
     let fingerprint: String
 
+    /// The only decoded bitmap an entry keeps, and what every view renders.
+    ///
+    /// Bounded to `thumbnailSide` rather than held at full resolution: the biggest thing that
+    /// ever shows a clip is a ~208pt card, while a Retina screenshot decodes to tens of
+    /// megabytes. Pasting reads `representations`, so nothing is lost by not keeping it.
+    ///
     /// Starts as whatever can be produced instantly, then upgrades in place when Quick Look
     /// returns a real preview for a copied file.
     @Published private(set) var thumbnail: NSImage?
+
+    /// Comfortably above the largest card at Retina scale, so previews stay crisp.
+    static let thumbnailSide: CGFloat = 512
 
     /// True when the thumbnail shows actual content rather than a document icon, so views can
     /// inset it less and fill card previews with it.
     @Published private(set) var thumbnailIsContent: Bool = false
 
+    /// `image` is *consumed*, not stored: it supplies the thumbnail and the dimensions, then is
+    /// released. Holding a Retina screenshot's decoded bitmap for the life of the entry is the
+    /// single most expensive thing this app could do, and no view needs it.
     init(kind: ClipKind,
          plainText: String,
          representations: [NSPasteboard.PasteboardType: Data],
@@ -50,15 +68,16 @@ final class ClipboardItem: Identifiable, Equatable, ObservableObject {
         self.date = Date()
         self.plainText = plainText
         self.representations = representations
-        self.image = image
+        self.imageSize = image.flatMap { $0.size.width > 0 && $0.size.height > 0 ? $0.size : nil }
         self.fileURLs = fileURLs
+        self.byteCount = representations.values.reduce(0) { $0 + $1.count }
         self.sourceAppName = sourceAppName
         self.sourceAppIcon = sourceAppIcon
         self.fingerprint = Self.fingerprint(kind: kind,
                                             plainText: plainText,
                                             representations: representations,
                                             fileURLs: fileURLs)
-        makeInitialThumbnail()
+        makeInitialThumbnail(from: image)
         requestQuickLookThumbnail()
     }
 
@@ -75,7 +94,7 @@ final class ClipboardItem: Identifiable, Equatable, ObservableObject {
             if fileURLs.count == 1 { return fileURLs[0].lastPathComponent }
             return "\(fileURLs.count) files"
         case .image:
-            if let image { return "Image · \(Int(image.size.width))×\(Int(image.size.height))" }
+            if let imageSize { return "Image · \(Int(imageSize.width))×\(Int(imageSize.height))" }
             return "Image"
         case .text:
             let trimmed = plainText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -154,11 +173,14 @@ final class ClipboardItem: Identifiable, Equatable, ObservableObject {
         return hasher.finalize().map { String(format: "%02x", $0) }.joined()
     }
 
-    private func makeInitialThumbnail() {
+    /// Takes the decoded bitmap as an argument rather than off a stored property: this is the
+    /// one moment it exists, and letting it go afterwards is the entire point.
+    private func makeInitialThumbnail(from image: NSImage?) {
         // Any entry carrying a bitmap gets a real preview, whatever its kind — a styled copy
         // from a browser is still worth showing as a picture in the badge.
         if let image, image.size.width > 0, image.size.height > 0 {
-            thumbnail = image.scaledToFit(boundingBox: NSSize(width: 256, height: 256))
+            thumbnail = image.scaledToFit(
+                boundingBox: NSSize(width: Self.thumbnailSide, height: Self.thumbnailSide))
             thumbnailIsContent = true
             return
         }
@@ -181,7 +203,7 @@ final class ClipboardItem: Identifiable, Equatable, ObservableObject {
         let scale = NSScreen.main?.backingScaleFactor ?? 2
         let request = QLThumbnailGenerator.Request(
             fileAt: url,
-            size: CGSize(width: 256, height: 256),
+            size: CGSize(width: Self.thumbnailSide, height: Self.thumbnailSide),
             scale: scale,
             representationTypes: .thumbnail)
 

@@ -86,6 +86,10 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>SUFeedURL</key>                 <string>$FEED_URL</string>
     <key>SUPublicEDKey</key>             <string>$SPARKLE_PUBLIC_KEY</string>
     <key>SUEnableAutomaticChecks</key>   <true/>
+    <!-- Download updates quietly and install them when ClipIt next quits, rather than
+         interrupting with an "Install and Relaunch" alert: a relaunch wipes the memory-only
+         history. See Updater.swift. -->
+    <key>SUAutomaticallyUpdate</key>     <true/>
 </dict>
 </plist>
 PLIST

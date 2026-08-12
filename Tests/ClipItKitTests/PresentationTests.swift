@@ -42,6 +42,19 @@ final class PresentationTests: XCTestCase {
         }
     }
 
+    // MARK: - Switcher default selection
+
+    /// Index 0 is what a plain ⌘V already pastes, so opening there makes ⌘⌥V ⏎ a slower ⌘V.
+    func testSwitcherOpensOnThePreviousItem() {
+        XCTAssertEqual(QuickSwitcherView.initialSelection(itemCount: 5), 1)
+        XCTAssertEqual(QuickSwitcherView.initialSelection(itemCount: 2), 1)
+    }
+
+    func testSwitcherStaysOnTheOnlyItemItHas() {
+        XCTAssertEqual(QuickSwitcherView.initialSelection(itemCount: 1), 0)
+        XCTAssertEqual(QuickSwitcherView.initialSelection(itemCount: 0), 0)
+    }
+
     // MARK: - Popover sizing
 
     func testPopoverGrowsWithItemCount() {
@@ -112,5 +125,53 @@ final class PresentationTests: XCTestCase {
                                  sourceAppName: nil, sourceAppIcon: nil)
 
         XCTAssertEqual(Paster.plainTextRepresentation(of: item), "/a.txt\n/b.txt")
+    }
+
+    // MARK: - Bitmap round-trip
+
+    /// History keeps only the compressed flavour to stay small, so the paste has to put the
+    /// uncompressed one back — otherwise apps that read nothing but TIFF paste nothing.
+    func testPastingAPNGOnlyItemStillOffersTIFF() {
+        let source = NSImage(size: NSSize(width: 8, height: 8))
+        source.lockFocus()
+        NSColor.systemPink.setFill()
+        NSBezierPath(rect: NSRect(x: 0, y: 0, width: 8, height: 8)).fill()
+        source.unlockFocus()
+        let png = NSBitmapImageRep(data: source.tiffRepresentation!)!
+            .representation(using: .png, properties: [:])!
+
+        let item = ClipboardItem(kind: .image, plainText: "",
+                                 representations: [.png: png],
+                                 image: nil, fileURLs: [],
+                                 sourceAppName: nil, sourceAppIcon: nil)
+
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("com.quillerpl.clipit.tests.\(UUID().uuidString)"))
+        defer { pasteboard.releaseGlobally() }
+
+        Paster.placeOnPasteboard(item, plainOnly: false, on: pasteboard)
+
+        XCTAssertNotNil(pasteboard.data(forType: .png))
+        XCTAssertNotNil(pasteboard.data(forType: .tiff),
+                        "an app that only reads TIFF must still get the picture")
+    }
+
+    func testCollapsingDuplicatesKeepsOneFlavour() {
+        let source = NSImage(size: NSSize(width: 4, height: 4))
+        source.lockFocus()
+        NSColor.systemTeal.setFill()
+        NSBezierPath(rect: NSRect(x: 0, y: 0, width: 4, height: 4)).fill()
+        source.unlockFocus()
+
+        let tiff = source.tiffRepresentation!
+        let png = Bitmap.pngFromTIFF(tiff)!
+
+        let both = Bitmap.collapsingDuplicates([.png: png, .tiff: tiff, .string: Data("x".utf8)])
+        XCTAssertNil(both[.tiff])
+        XCTAssertEqual(both[.png], png)
+        XCTAssertNotNil(both[.string], "collapsing bitmaps must not touch anything else")
+
+        let tiffOnly = Bitmap.collapsingDuplicates([.tiff: tiff])
+        XCTAssertNil(tiffOnly[.tiff])
+        XCTAssertNotNil(tiffOnly[.png])
     }
 }

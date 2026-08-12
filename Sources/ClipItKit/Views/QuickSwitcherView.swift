@@ -21,6 +21,16 @@ struct QuickSwitcherView: View {
     static let visibleCards = 2
     private static let arrowWidth: CGFloat = 26
 
+    /// Which entry the switcher opens on.
+    ///
+    /// Index 0 is the head of history — exactly what a plain ⌘V already pastes — so landing
+    /// there spends the whole gesture to achieve nothing. Start one back, for the same reason
+    /// ⌘Tab starts on the previous app rather than the one you're already in: ⌘⌥V ⏎ then means
+    /// "the thing before this", which is what people reach for the switcher to get.
+    static func initialSelection(itemCount: Int) -> Int {
+        itemCount >= 2 ? 1 : 0
+    }
+
     static let width: CGFloat = CGFloat(visibleCards) * cardWidth + 10   // cards + gap
         + arrowWidth * 2 + 24                                           // arrows + padding
     static let height: CGFloat = cardHeight + 52

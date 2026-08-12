@@ -22,14 +22,29 @@ Requires macOS 14 (Sonoma) or later. Works on both Apple Silicon and Intel Macs.
 ### Install
 
 1. Open the downloaded **ClipIt.dmg** and drag **ClipIt** into **Applications**.
-2. Open your Applications folder and **right-click ClipIt → Open**.
-3. Click **Open** in the dialog that appears.
+2. Then follow the steps for your version of macOS. Not sure which you have?  → **About This Mac**.
 
-> **Why right-click the first time?**
+**On macOS 15 (Sequoia) and later**
+
+1. Open your Applications folder and double-click **ClipIt**. macOS blocks it — click **Done**.
+2. Open **System Settings → Privacy & Security** and scroll down to the **Security** section.
+3. Next to *"ClipIt" was blocked to protect your Mac*, click **Open Anyway**.
+4. Confirm, and enter your password or Touch ID when asked.
+
+**On macOS 14 (Sonoma)**
+
+1. Open your Applications folder and **right-click ClipIt → Open**.
+2. Click **Open** in the dialog that appears.
+
+> **Why the extra step?**
 > ClipIt isn't signed with a paid Apple developer certificate, so macOS shows an
-> "unidentified developer" warning on first launch. Right-click → Open is how you tell macOS
-> you trust it — you only do this once. Plain double-clicking shows a warning with no way past
-> it, so use the right-click.
+> "unidentified developer" warning on first launch. Approving it once is how you tell macOS you
+> trust it — every later launch is a normal double-click.
+>
+> On macOS 15 Apple removed the old right-click → Open shortcut for apps like this one, which is
+> why newer systems have to take the longer route through System Settings. If you double-click
+> and the dialog offers you no way forward, that's this — nothing is broken, go to
+> **Privacy & Security** and look for **Open Anyway**.
 
 ClipIt then greets you and walks through the single permission it needs.
 
@@ -61,6 +76,9 @@ clipboard keeps the styled version, so a normal ⌘V still works right afterward
 
 A small panel appears **next to your cursor**, not in the middle of the screen. `←` `→` to
 choose, `⏎` to paste, `esc` to close. Drag it aside if it covers something.
+
+It opens on your **previous** copy — the one a plain ⌘V *won't* give you — so ⌘⌥V then `⏎`
+pastes the thing before last, and `←` steps back to the newest.
 
 <div align="center">
 <img src="docs/switcher.png" width="620" alt="The quick switcher showing two recent items side by side">
@@ -198,6 +216,26 @@ that. `build.sh` runs `lsregister`; by hand it's:
 **Memory-only.** History is never persisted. Sleep does *not* clear it — the app keeps running
 across sleep, and wiping on every screen-off would make the feature useless.
 
+**History has a byte budget, not just an item cap.** Fifty items is no protection when one of
+them is a screenshot. Memory-only means RAM *is* the storage, so `ClipboardStore` also evicts
+the oldest entries past ~150 MB — "memory-only" turning into "memory hog" would discredit the
+privacy claim it exists to support.
+
+**⌘⌥V opens on the previous copy, not the newest.** Index 0 is what a plain ⌘V already pastes,
+so opening there would make the switcher a slower ⌘V. It starts one back, the way ⌘Tab starts
+on the previous app rather than the one you're already in.
+
+**Updates install when you quit.** Sparkle's usual "Install and Relaunch" would restart the app
+and take the whole history with it, so ClipIt downloads updates quietly and lets them land on
+next launch. A small dot appears beside the menu bar icon while one is waiting, and the menu
+item becomes *Quit and Update ClipIt* — the point being that you choose the moment. Choosing
+*Check for Updates…* by hand still offers the immediate install; that one is a deliberate
+choice, and it says "Relaunch" on the button.
+
+The dot sits *beside* the glyph rather than on it. `doc.on.clipboard` is a solid shape, so a
+black badge on its corner is invisible against black, and the transparent gap needed to separate
+them reads as a bite out of the icon — see `StatusItemIcon`.
+
 **⌘⇧V is taken over globally.** Several apps use it for "Paste and Match Style"; ClipIt's
 version does the same thing, and adds it to apps that lack it. To change it, edit
 `registerHotKeys()` in [AppDelegate.swift](Sources/ClipItKit/AppDelegate.swift).
@@ -216,6 +254,18 @@ window and does consume them, so it keeps its badges.
 **"Copy Image" outranks its own URL.** Browsers put an image *and* its source URL on the
 pasteboard. An entry with bitmap data plus nothing but a bare URL is classified as an image —
 otherwise a copied picture shows up as a link.
+
+**One bitmap flavour, never two.** Apps put the same pixels on the pasteboard as PNG *and* as
+uncompressed TIFF — tens of megabytes of the latter for a Retina screenshot. Capture keeps only
+the PNG (transcoding a TIFF-only copy), and `Paster` synthesizes the TIFF back on the way out
+for apps that read nothing else. Entries also never retain the decoded full-size bitmap: the
+largest thing that ever shows a clip is a 208pt card, so `thumbnail` is all any view needs and
+pasting reads the raw representations anyway.
+
+**Hover only counts when the pointer actually moved.** Arrow keys scroll the list, which slides
+a different row under a resting cursor; SwiftUI calls that a hover, and the selection would snap
+straight back to the mouse. `PointerGate` compares the pointer's location so each input wins
+while it is the one being used.
 
 **Copied image files need Quick Look.** Copying a photo in Finder puts a file URL on the
 pasteboard, not a bitmap. `requestQuickLookThumbnail()` fetches a real preview asynchronously,

@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.0
+
+- **⌘⌥V opens on your previous copy**, not the one ⌘V already pastes — so ⌘⌥V ⏎ now pastes the
+  thing before last.
+- **Copied images cost a fraction of the memory.** ClipIt no longer keeps the same picture two
+  or three times over, and history now has a size budget as well as an item limit.
+- Re-copying something already in history shows the fresh copy's time and source app instead of
+  the original's.
+- The mouse no longer steals the selection back while you're moving through history with the
+  arrow keys.
+- Updates install when you quit rather than restarting ClipIt mid-session, which used to clear
+  your history without warning. When one is waiting, a small dot appears next to the menu bar
+  icon and the menu reads **Quit and Update ClipIt** — no dialog, and nothing to dismiss.
+- Install instructions now cover macOS 15 and later, where Apple removed the right-click → Open
+  shortcut.
+
 ## 0.1.0
 
 First release.
