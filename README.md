@@ -105,6 +105,13 @@ previews. Switch to card view with the toggle in the top-left for bigger preview
 | `esc` | Close |
 | `⌘1`–`⌘9` | Paste that card (card view only) |
 
+### Updates
+
+ClipIt checks for new versions and downloads them in the background. Nothing interrupts you: when
+an update is ready, a small dot appears next to the menu bar icon and the menu reads **Quit and
+Update ClipIt**. It installs the next time you quit, so you pick the moment — and your history
+survives until you do.
+
 ---
 
 ## Privacy
@@ -138,7 +145,7 @@ cd clipit
 ```
 
 ```bash
-swift test               # 47 tests
+swift test               # 64 tests
 ./release.sh             # universal build + DMG + signed update feed
 ```
 
@@ -153,9 +160,12 @@ Sources/ClipItKit/          everything: capture, paste, hotkeys, panels
   ClipboardMonitor.swift      changeCount polling + capture rules
   ClipboardStore.swift        in-memory history, dedupe, search
   ClipboardItem.swift         one snapshot: representations, thumbnail, display strings
+  Bitmap.swift                PNG ⇄ TIFF, and which flavours history keeps
   Paster.swift                pasteboard writes, focus restore, synthesized ⌘V
   HotKeyManager.swift         Carbon RegisterEventHotKey wrapper
   CaretLocator.swift          finds the insertion point via the Accessibility API
+  PointerGate.swift           tells a real hover from the list moving under the cursor
+  StatusItemIcon.swift        menu bar glyph, with the update dot
   IconRenderer.swift          draws the app icon at every size
   SnapshotRenderer.swift      renders the screenshots in this README
   Views/                      history list, card drawer, switcher, welcome
@@ -218,23 +228,17 @@ across sleep, and wiping on every screen-off would make the feature useless.
 
 **History has a byte budget, not just an item cap.** Fifty items is no protection when one of
 them is a screenshot. Memory-only means RAM *is* the storage, so `ClipboardStore` also evicts
-the oldest entries past ~150 MB — "memory-only" turning into "memory hog" would discredit the
-privacy claim it exists to support.
+the oldest entries past ~150 MB.
 
 **⌘⌥V opens on the previous copy, not the newest.** Index 0 is what a plain ⌘V already pastes,
 so opening there would make the switcher a slower ⌘V. It starts one back, the way ⌘Tab starts
 on the previous app rather than the one you're already in.
 
-**Updates install when you quit.** Sparkle's usual "Install and Relaunch" would restart the app
-and take the whole history with it, so ClipIt downloads updates quietly and lets them land on
-next launch. A small dot appears beside the menu bar icon while one is waiting, and the menu
-item becomes *Quit and Update ClipIt* — the point being that you choose the moment. Choosing
-*Check for Updates…* by hand still offers the immediate install; that one is a deliberate
-choice, and it says "Relaunch" on the button.
-
-The dot sits *beside* the glyph rather than on it. `doc.on.clipboard` is a solid shape, so a
-black badge on its corner is invisible against black, and the transparent gap needed to separate
-them reads as a bite out of the icon — see `StatusItemIcon`.
+**Updates install when you quit.** Sparkle's usual "Install and Relaunch" restarts the app,
+which would take the whole history with it. `SUAutomaticallyUpdate` plus parking the update in
+`willInstallUpdateOnQuit` keeps the running session intact. Note that
+`updaterShouldRelaunchApplication` is not the lever it looks like: returning `false` aborts the
+installation rather than suppressing the relaunch.
 
 **⌘⇧V is taken over globally.** Several apps use it for "Paste and Match Style"; ClipIt's
 version does the same thing, and adds it to apps that lack it. To change it, edit
@@ -293,6 +297,19 @@ Mac, with no useful explanation for whoever you sent it to.
 ---
 
 ## Changes
+
+### 0.2.0
+
+- **⌘⌥V opens on your previous copy** rather than the newest one, so ⌘⌥V ⏎ pastes the thing
+  before last.
+- **Copied images use a fraction of the memory** they did, with no change to how previews look.
+- Updates install when you quit instead of restarting ClipIt and clearing your history.
+- Arrow keys now work in the menu bar list.
+- Moving through history with the arrow keys no longer jumps; the list scrolls just enough to
+  bring the next item into view, and the mouse no longer steals the selection back.
+- The three panels share one background instead of the list looking lighter than the others.
+- Re-copying something already in history shows the new copy's time and source app.
+- Install instructions cover macOS 15 and later.
 
 ### 0.1.0 — first release
 

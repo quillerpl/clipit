@@ -2,19 +2,41 @@
 
 ## 0.2.0
 
-- **⌘⌥V opens on your previous copy**, not the one ⌘V already pastes — so ⌘⌥V ⏎ now pastes the
-  thing before last.
-- **Copied images cost a fraction of the memory.** ClipIt no longer keeps the same picture two
-  or three times over, and history now has a size budget as well as an item limit.
-- Re-copying something already in history shows the fresh copy's time and source app instead of
-  the original's.
-- The mouse no longer steals the selection back while you're moving through history with the
-  arrow keys.
-- Updates install when you quit rather than restarting ClipIt mid-session, which used to clear
-  your history without warning. When one is waiting, a small dot appears next to the menu bar
-  icon and the menu reads **Quit and Update ClipIt** — no dialog, and nothing to dismiss.
-- Install instructions now cover macOS 15 and later, where Apple removed the right-click → Open
-  shortcut.
+### Faster to the thing you actually want
+
+- **⌘⌥V now opens on your previous copy**, not the newest one. The newest is what a plain ⌘V
+  already pastes, so ⌘⌥V ⏎ gets you the thing before last in one go.
+
+### Much lighter on memory
+
+- **Copied images use a fraction of the memory they did**, with no change to how previews look.
+  ClipIt was keeping the same picture up to three times over; now it keeps one copy and one
+  preview.
+- History has a size limit as well as a 50-item limit, so a run of big screenshots can't quietly
+  fill your memory.
+
+### Updates that don't cost you your history
+
+- Updates now install **when you quit**, instead of restarting ClipIt mid-session and clearing
+  everything you'd copied that day.
+- When one is waiting, a small dot appears next to the menu bar icon and the menu reads **Quit
+  and Update ClipIt**. No dialog, nothing to dismiss, and you pick the moment.
+
+### Fixes
+
+- Arrow keys work in the menu bar list. They previously did nothing but beep.
+- Moving through history no longer jumps the list around. It now scrolls just far enough to
+  bring the next item into view, in both list and card view.
+- The mouse no longer steals the selection back while you're using the arrow keys.
+- The menu bar list now matches the switcher and card drawer instead of looking lighter and
+  flatter than both.
+- Re-copying something already in your history shows the new copy's time and source app rather
+  than the original's.
+
+### Installing
+
+- Install instructions now cover macOS 15 (Sequoia) and later, where the old right-click → Open
+  step no longer works. Use **System Settings → Privacy & Security → Open Anyway** instead.
 
 ## 0.1.0
 

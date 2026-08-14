@@ -60,7 +60,9 @@ struct HistoryView: View {
             footer
         }
         .frame(width: Self.width)
-        .background(VisualEffectBackground())
+        // The same backing as the switcher and drawer. The bare material alone read lighter and
+        // flatter than the panels, so the three surfaces looked like different apps.
+        .background(PanelBackground())
         .environment(\.colorScheme, .dark)
     }
 
@@ -143,8 +145,11 @@ struct HistoryView: View {
             }
             .onChange(of: selection) { _, new in
                 guard store.visibleItems.indices.contains(new) else { return }
+                // No anchor: scroll the *minimum* needed to bring the row into view, and don't
+                // move at all while it is already visible. Anchoring to .center re-centred the
+                // selection on every keypress, so each arrow yanked the whole list.
                 withAnimation(.easeOut(duration: 0.12)) {
-                    proxy.scrollTo(store.visibleItems[new].id, anchor: .center)
+                    proxy.scrollTo(store.visibleItems[new].id)
                 }
             }
         }

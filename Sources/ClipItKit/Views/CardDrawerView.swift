@@ -117,8 +117,10 @@ struct CardDrawerView: View {
             }
             .onChange(of: selection) { _, new in
                 guard store.visibleItems.indices.contains(new) else { return }
+                // No anchor: the row scrolls only far enough to bring the next card into the
+                // viewport, rather than snapping the selection back to the middle every time.
                 withAnimation(.easeOut(duration: 0.15)) {
-                    proxy.scrollTo(store.visibleItems[new].id, anchor: .center)
+                    proxy.scrollTo(store.visibleItems[new].id)
                 }
             }
         }

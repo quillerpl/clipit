@@ -162,8 +162,13 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelega
         PointerGate.shared.reset()
         resetSearch()
         updatePopoverSize()
-        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         NSApp.activate(ignoringOtherApps: true)
+        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        // Showing a popover does not give it the keyboard, and a local event monitor only sees
+        // keys that were delivered to us — so without this, ↑/↓ never reach `handle()` and
+        // macOS beeps instead. The card drawer never had the bug because a panel takes focus
+        // for itself with `makeKeyAndOrderFront`.
+        popover.contentViewController?.view.window?.makeKey()
         installKeyMonitor(for: .history)
     }
 
