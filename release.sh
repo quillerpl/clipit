@@ -11,8 +11,9 @@
 #                       xcrun notarytool store-credentials NOTARY_PROFILE \
 #                         --apple-id you@example.com --team-id TEAMID --password <app-specific>
 #
-# Without it the DMG still works, but recipients must right-click → Open the first time and
-# approve an "unidentified developer" warning.
+# Without it the DMG still works, but recipients have to approve an "unidentified developer"
+# warning on first launch: System Settings › Privacy & Security › Open Anyway on macOS 15+,
+# or right-click → Open on macOS 14. Apple removed the right-click route in Sequoia.
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -69,7 +70,8 @@ if [ "$NOTARIZE" = "1" ]; then
     xcrun stapler staple "$DMG"
     xcrun stapler validate "$DMG"
 else
-    echo "==> Not notarized: recipients must right-click → Open the first time."
+    echo "==> Not notarized: first launch needs Privacy & Security › Open Anyway (macOS 15+)"
+    echo "    or right-click → Open (macOS 14)."
 fi
 
 # --- Sparkle feed ----------------------------------------------------------

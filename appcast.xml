@@ -3,12 +3,12 @@
     <channel>
         <title>ClipIt</title>
         <item>
-            <title>0.1.0</title>
-            <pubDate>Wed, 12 Aug 2026 01:54:45 +0200</pubDate>
-            <sparkle:version>202608120154</sparkle:version>
-            <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+            <title>0.2.0</title>
+            <pubDate>Fri, 14 Aug 2026 20:08:14 +0200</pubDate>
+            <sparkle:version>202608142008</sparkle:version>
+            <sparkle:shortVersionString>0.2.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/quillerpl/clipit/releases/download/v0.1.0/ClipIt-0.1.0.dmg" length="2534268" type="application/octet-stream" sparkle:edSignature="6n/qwtZYv+YBp2JdIatAOP/5OWlFl1Wz2LlTlSnHSWgt5Hwr9H5yRtOIvHYEhNxhJcCxSPpqbYuSgTgLE0JnDA=="/>
+            <enclosure url="https://github.com/quillerpl/clipit/releases/download/v0.2.0/ClipIt-0.2.0.dmg" length="2586905" type="application/octet-stream" sparkle:edSignature="AH7ilBdZ4FlKIPd16YC9fS2bsQJmyUZAnjQ0YCnG2ejzYr4wYBRoz0Ma8unpYQdIfaOJmmfZ94uy3EuyU2vWAw=="/>
         </item>
     </channel>
 </rss>
