@@ -7,6 +7,12 @@
 A clipboard history for macOS that lives in your menu bar.
 Nothing it records ever leaves your Mac — or even touches your disk.
 
+[![Latest release](https://img.shields.io/github/v/release/quillerpl/clipit?style=flat-square&color=1f6feb&label=release)](https://github.com/quillerpl/clipit/releases/latest)
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-000000?style=flat-square&logo=apple&logoColor=white)](#download)
+[![Swift 5.9](https://img.shields.io/badge/Swift-5.9-F05138?style=flat-square&logo=swift&logoColor=white)](https://swift.org)
+[![Build](https://img.shields.io/github/actions/workflow/status/quillerpl/clipit/ci.yml?branch=main&style=flat-square&label=build)](https://github.com/quillerpl/clipit/actions/workflows/ci.yml)
+[![MIT licence](https://img.shields.io/github/license/quillerpl/clipit?style=flat-square&color=32b350)](LICENSE)
+
 <img src="docs/list.png" width="620" alt="ClipIt's history panel, showing recent copies with previews">
 
 </div>
