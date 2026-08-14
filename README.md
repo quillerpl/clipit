@@ -232,19 +232,16 @@ that. `build.sh` runs `lsregister`; by hand it's:
 **Memory-only.** History is never persisted. Sleep does *not* clear it — the app keeps running
 across sleep, and wiping on every screen-off would make the feature useless.
 
-**History has a byte budget, not just an item cap.** Fifty items is no protection when one of
-them is a screenshot. Memory-only means RAM *is* the storage, so `ClipboardStore` also evicts
-the oldest entries past ~150 MB.
+**History has a byte budget as well as an item cap.** Fifty items is no limit when one of them
+is a screenshot, so `ClipboardStore` evicts the oldest past ~150 MB.
 
-**⌘⌥V opens on the previous copy, not the newest.** Index 0 is what a plain ⌘V already pastes,
-so opening there would make the switcher a slower ⌘V. It starts one back, the way ⌘Tab starts
-on the previous app rather than the one you're already in.
+**The switcher opens on index 1, not 0.** Index 0 is what a plain ⌘V already pastes, so opening
+there makes ⌘⌥V a slower ⌘V. See `QuickSwitcherView.initialSelection`.
 
-**Updates install when you quit.** Sparkle's usual "Install and Relaunch" restarts the app,
-which would take the whole history with it. `SUAutomaticallyUpdate` plus parking the update in
-`willInstallUpdateOnQuit` keeps the running session intact. Note that
-`updaterShouldRelaunchApplication` is not the lever it looks like: returning `false` aborts the
-installation rather than suppressing the relaunch.
+**Updates install on quit**, via `SUAutomaticallyUpdate` and parking the update in
+`willInstallUpdateOnQuit`; a relaunch would wipe the history. `updaterShouldRelaunchApplication`
+is not the lever it looks like — returning `false` aborts the install rather than suppressing
+the relaunch.
 
 **⌘⇧V is taken over globally.** Several apps use it for "Paste and Match Style"; ClipIt's
 version does the same thing, and adds it to apps that lack it. To change it, edit
@@ -265,17 +262,17 @@ window and does consume them, so it keeps its badges.
 pasteboard. An entry with bitmap data plus nothing but a bare URL is classified as an image —
 otherwise a copied picture shows up as a link.
 
-**One bitmap flavour, never two.** Apps put the same pixels on the pasteboard as PNG *and* as
-uncompressed TIFF — tens of megabytes of the latter for a Retina screenshot. Capture keeps only
-the PNG (transcoding a TIFF-only copy), and `Paster` synthesizes the TIFF back on the way out
-for apps that read nothing else. Entries also never retain the decoded full-size bitmap: the
-largest thing that ever shows a clip is a 208pt card, so `thumbnail` is all any view needs and
-pasting reads the raw representations anyway.
+**One bitmap flavour, never two.** Capture keeps the PNG and drops the pasteboard's uncompressed
+TIFF of the same pixels. Anything writing an image back to the pasteboard must synthesize that
+TIFF again, or it pastes nothing into apps that read only that flavour.
 
-**Hover only counts when the pointer actually moved.** Arrow keys scroll the list, which slides
-a different row under a resting cursor; SwiftUI calls that a hover, and the selection would snap
-straight back to the mouse. `PointerGate` compares the pointer's location so each input wins
-while it is the one being used.
+**No entry keeps a full-size bitmap.** `thumbnail` is what every view draws; pasting reads
+`representations`. Reintroducing a decoded original costs tens of megabytes per screenshot and
+nothing on screen is larger than a 208pt card.
+
+**Hover only counts when the pointer moved.** Scrolling slides a new row under a resting cursor
+and SwiftUI reports that as a hover; `PointerGate` filters those out so it can't overrule the
+keyboard.
 
 **Copied image files need Quick Look.** Copying a photo in Finder puts a file URL on the
 pasteboard, not a bitmap. `requestQuickLookThumbnail()` fetches a real preview asynchronously,
